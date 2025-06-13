@@ -50,7 +50,7 @@ mixin _StateHome on ChangeNotifier {
 
   List<AppViewmodel> get favoriteApps {
     return _apps.where((state) {
-      return state.app.favorite && !state.app.appNotInstall;
+      return state.app.favorite && !state.app.appNotInstalled;
     }).toList(growable: false);
   }
 
@@ -104,7 +104,7 @@ class HomeViewmodel extends ChangeNotifier with _StateHome {
 
   AsyncResult<Unit> _checkUpdates() async {
     final installedApps = _apps.where((model) {
-      return !model.app.appNotInstall;
+      return !model.app.appNotInstalled;
     }).toList();
 
     for (var i = 0; i < installedApps.length; i++) {
@@ -131,7 +131,7 @@ class HomeViewmodel extends ChangeNotifier with _StateHome {
     final newApps = <AppEntity>[];
 
     for (var app in apps) {
-      if (app.appNotInstall) {
+      if (app.appNotInstalled) {
         newApps.add(app);
         continue;
       }

@@ -18,7 +18,7 @@ void main() {
 
   test('Register Github Repository', () async {
     const repositoryUrl = 'https://github.com/Flutterando/yuno';
-    final app = AppEntity.notInstallApp(
+    final app = AppEntity.notInstalledApp(
       const RepositoryEntity(
         provider: GitRepositoryProvider.github,
         organizationName: 'Flutterando',

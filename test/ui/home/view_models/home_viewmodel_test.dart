@@ -57,7 +57,7 @@ void main() {
   });
 
   test('checkUpdates command', () async {
-    const notInstallApp = NotInstalledAppEntity(
+    const notInstalledApp = NotInstalledAppEntity(
         repository: RepositoryEntity(
       organizationName: 'Flutterando',
       projectName: 'yuno',
@@ -69,7 +69,7 @@ void main() {
       tagName: '',
     );
 
-    const installApp = InstalledAppEntity(
+    const installedApp = InstalledAppEntity(
       repository: RepositoryEntity(
         organizationName: 'Flutterando',
         projectName: 'yuno',
@@ -85,14 +85,14 @@ void main() {
     );
 
     viewModel.setApps([
-      viewModel.createAppViewmodel(notInstallApp),
-      viewModel.createAppViewmodel(installApp),
+      viewModel.createAppViewmodel(notInstalledApp),
+      viewModel.createAppViewmodel(installedApp),
     ]);
 
-    when(() => codeHostingRepository.getLastRelease(installApp)) //
-        .thenAnswer((_) async => const Success(installApp));
+    when(() => codeHostingRepository.getLastRelease(installedApp)) //
+        .thenAnswer((_) async => const Success(installedApp));
 
-    when(() => appRepository.putApp(installApp)).thenAnswer((_) async => const Success(installApp));
+    when(() => appRepository.putApp(installedApp)).thenAnswer((_) async => const Success(installedApp));
 
     await viewModel.checkUpdateCommand.execute();
 

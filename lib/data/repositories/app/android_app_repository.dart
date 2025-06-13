@@ -17,7 +17,7 @@ class AndroidAppRepository implements AppRepository {
 
   @override
   AsyncResult<AppEntity> addInfo(AppEntity app) async {
-    if (app.appNotInstall) {
+    if (app.appNotInstalled) {
       return Failure(AndroidPluginException('App not installed: ${app.repository.projectName}'));
     }
 
@@ -164,7 +164,7 @@ class AndroidAppRepository implements AppRepository {
       final mapList = list.cast<Map<String, Object?>>();
 
       return mapList;
-    } catch (e) {
+    } catch (_) {
       return [];
     }
   }

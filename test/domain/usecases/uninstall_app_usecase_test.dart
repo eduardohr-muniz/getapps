@@ -14,7 +14,7 @@ void main() {
     usecase = UninstallAppUsecase(appRepository);
   });
   test('uninstall app', () async {
-    final app = AppEntity.notInstallApp(
+    final app = AppEntity.notInstalledApp(
       const RepositoryEntity(
         provider: GitRepositoryProvider.github,
         organizationName: 'Flutterando',

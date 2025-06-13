@@ -53,13 +53,13 @@ class AppEntity with _$AppEntity {
 
   factory AppEntity.fromJson(Map<String, Object?> json) => _$AppEntityFromJson(json);
 
-  static NotInstalledAppEntity notInstallApp(RepositoryEntity repository) {
+  static NotInstalledAppEntity notInstalledApp(RepositoryEntity repository) {
     return NotInstalledAppEntity(
       repository: repository,
     );
   }
 
-  bool get appNotInstall => this is NotInstalledAppEntity;
+  bool get appNotInstalled => this is NotInstalledAppEntity;
   bool get updateIsAvailable => lastRelease != currentRelease;
   String get appName => packageInfo.name ?? repository.projectName;
 

@@ -9,7 +9,7 @@ class LocalStorage {
       final shared = await SharedPreferences.getInstance();
       shared.setString(key, value);
       return Success(value);
-    } catch (e) {
+    } catch (_) {
       return const Failure(LocalStorageException('Failed to save data'));
     }
   }
@@ -22,7 +22,7 @@ class LocalStorage {
         return Failure(EmptyLocalStorageException(key));
       }
       return Success(value);
-    } catch (e) {
+    } catch (_) {
       return const Failure(LocalStorageException('Failed to get data'));
     }
   }
@@ -32,7 +32,7 @@ class LocalStorage {
       final shared = await SharedPreferences.getInstance();
       shared.remove(key);
       return Success.unit();
-    } catch (e) {
+    } catch (_) {
       return const Failure(LocalStorageException('Failed to remove data'));
     }
   }

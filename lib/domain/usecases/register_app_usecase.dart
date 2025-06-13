@@ -29,7 +29,7 @@ class RegisterAppUsecase {
       projectName: uri.pathSegments[1],
     );
 
-    final app = AppEntity.notInstallApp(appRepository);
+    final app = AppEntity.notInstalledApp(appRepository);
 
     return _codeHostingRepository
         .getLastRelease(app) //

@@ -148,7 +148,7 @@ class _HomePageState extends State<HomePage> with HookStateMixin {
                                 final app = appModel.app;
                                 late Widget buttonLabel;
 
-                                if (app.appNotInstall) {
+                                if (app.appNotInstalled) {
                                   buttonLabel = _buildButtonLabel('Instalar', UIcons.regularRounded.download);
                                 } else if (app.updateIsAvailable) {
                                   buttonLabel = _buildButtonLabel('Atualizar', UIcons.regularRounded.refresh);
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> with HookStateMixin {
                                     progress: appModel.downloadPercent,
                                     buttonLabel: buttonLabel,
                                     onTap: () {
-                                      if (app.appNotInstall || app.updateIsAvailable) {
+                                      if (app.appNotInstalled || app.updateIsAvailable) {
                                         _executeInstallDialog(appModel);
                                       } else {
                                         appModel.openApp();
@@ -260,7 +260,7 @@ class AnimatedAppsList extends StatelessWidget {
                         final app = appModel.app;
                         late Widget buttonLabel;
 
-                        if (app.appNotInstall) {
+                        if (app.appNotInstalled) {
                           buttonLabel = _buildButtonLabel('Instalar', UIcons.regularRounded.download);
                         } else if (app.updateIsAvailable) {
                           buttonLabel = _buildButtonLabel('Atualizar', UIcons.regularRounded.refresh);
@@ -284,7 +284,7 @@ class AnimatedAppsList extends StatelessWidget {
                                 progress: appModel.downloadPercent,
                                 buttonLabel: buttonLabel,
                                 onTap: () {
-                                  if (app.appNotInstall || app.updateIsAvailable) {
+                                  if (app.appNotInstalled || app.updateIsAvailable) {
                                     installApp(appModel);
                                   } else {
                                     openApp(appModel);
@@ -383,7 +383,7 @@ class AppDetailModalWidget extends StatelessWidget with HookMixin {
             infoLabel: appModel.app.packageInfo.id,
             sizeLabel: appModel.app.packageInfo.version,
             imageBytes: appModel.app.packageInfo.imageBytes,
-            trailing: appModel.app.appNotInstall
+            trailing: appModel.app.appNotInstalled
                 ? const SizedBox()
                 : Center(
                     child: GestureDetector(
@@ -407,7 +407,7 @@ class AppDetailModalWidget extends StatelessWidget with HookMixin {
               style: TextStyle(color: Colors.white),
             ),
           ),
-          if (appModel.app.appNotInstall)
+          if (appModel.app.appNotInstalled)
             Padding(
               padding: 16.0.paddingTop,
               child: ElevatedButton(
@@ -418,7 +418,7 @@ class AppDetailModalWidget extends StatelessWidget with HookMixin {
                 child: const Text('Instalar', style: TextStyle(color: Colors.white)),
               ),
             ),
-          if (appModel.app.updateIsAvailable && !appModel.app.appNotInstall)
+          if (appModel.app.updateIsAvailable && !appModel.app.appNotInstalled)
             Padding(
               padding: 16.0.paddingTop,
               child: ElevatedButton(
@@ -429,7 +429,7 @@ class AppDetailModalWidget extends StatelessWidget with HookMixin {
                 child: const Text('Atualizar', style: TextStyle(color: Colors.white)),
               ),
             ),
-          if (!appModel.app.appNotInstall)
+          if (!appModel.app.appNotInstalled)
             Padding(
               padding: 16.0.paddingTop,
               child: ElevatedButton(
@@ -440,7 +440,7 @@ class AppDetailModalWidget extends StatelessWidget with HookMixin {
                 child: const Text('Abrir', style: TextStyle(color: Colors.white)),
               ),
             ),
-          if (!appModel.app.appNotInstall)
+          if (!appModel.app.appNotInstalled)
             Padding(
               padding: 16.0.paddingTop,
               child: ElevatedButton(
@@ -451,7 +451,7 @@ class AppDetailModalWidget extends StatelessWidget with HookMixin {
                 child: const Text('Desinstalar', style: TextStyle(color: Colors.white)),
               ),
             ),
-          if (appModel.app.appNotInstall)
+          if (appModel.app.appNotInstalled)
             Padding(
               padding: 16.0.paddingTop,
               child: ElevatedButton(

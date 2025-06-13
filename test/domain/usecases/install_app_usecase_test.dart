@@ -35,6 +35,10 @@ void main() {
       (_) async => const Success(app),
     );
 
+    when(() => appRepository.putApp(app)).thenAnswer(
+      (_) async => Success(app.toInstalled()),
+    );
+
     final appStates = <AppEntity>[];
 
     void onChangeApp(AppEntity updatedApp) {

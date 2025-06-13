@@ -1,6 +1,8 @@
 import 'package:getapps/config/constants.dart';
+import 'package:getapps/data/adapters/release_mapper.dart';
 import 'package:getapps/data/services/client_http.dart';
 import 'package:getapps/domain/domain.dart';
+import 'package:getapps/domain/entities/release_entity.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -33,22 +35,7 @@ class RemoteCodeHostingRepository implements CodeHostingRepository {
       'Authorization': 'token $githubToken',
     }).flatMap((response) {
       final data = response.data as Map<String, dynamic>;
-      final tagName = data['tag_name'] as String;
-      final assets = (data['assets'] as List<dynamic>) //
-          .map((a) => a['browser_download_url'] as String)
-          .where((url) => url.endsWith('.apk'))
-          .toList();
-
-      if (assets.isEmpty) {
-        return const Failure(RemoteRepositoryException('No assets found'));
-      }
-
-      final newApp = app.copyWith.lastRelease(
-        tagName: tagName,
-        assets: assets,
-      );
-
-      return Success(newApp);
+      return ReleaseMapper.toApp(app, data);
     });
   }
 
