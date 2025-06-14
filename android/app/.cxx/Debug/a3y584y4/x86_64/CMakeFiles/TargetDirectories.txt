@@ -1,0 +1,2 @@
+/Volumes/External/projects/getapps/android/app/.cxx/Debug/a3y584y4/x86_64/CMakeFiles/edit_cache.dir
+/Volumes/External/projects/getapps/android/app/.cxx/Debug/a3y584y4/x86_64/CMakeFiles/rebuild_cache.dir

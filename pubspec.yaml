@@ -29,6 +29,8 @@ dependencies:
   path_provider: ^2.1.5
   dio: ^5.7.0
   path: ^1.9.0
+  talker: ^4.8.4
+  talker_dio_logger: ^4.8.4
 
 dev_dependencies:
   flutter_test:

@@ -6,6 +6,9 @@ import 'package:getapps/data/services/client_http.dart';
 import 'package:getapps/data/services/local_storage.dart';
 import 'package:getapps/ui/home/view_models/home_viewmodel.dart';
 import 'package:getapps/ui/splash/view_models/splash_viewmodel.dart';
+import 'package:talker/talker.dart';
+import 'package:talker_dio_logger/talker_dio_logger_interceptor.dart';
+import 'package:talker_dio_logger/talker_dio_logger_settings.dart';
 
 import '../data/repositories/app/remote_code_hosting_repository.dart';
 import '../domain/domain.dart';
@@ -19,7 +22,7 @@ void setupInjection() {
     BaseOptions(
       connectTimeout: const Duration(seconds: 5),
     ),
-  ));
+  )..interceptors.add(TalkerDioLogger(talker: Talker(), settings: const TalkerDioLoggerSettings(hiddenHeaders: {}, printRequestHeaders: true))));
   injector.addInstance<AndroidPackage>(AndroidPackage());
   injector.addSingleton(ClientHttp.new);
   injector.addSingleton(LocalStorage.new);
