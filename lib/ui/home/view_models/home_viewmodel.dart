@@ -4,6 +4,7 @@ import 'package:result_command/result_command.dart';
 import 'package:result_dart/result_dart.dart';
 
 import '../../../domain/domain.dart';
+import '../../../domain/entities/app_release_entity.dart';
 
 part 'app_viewmodel.dart';
 
@@ -108,12 +109,45 @@ class HomeViewmodel extends ChangeNotifier with _StateHome {
     }).toList();
 
     for (var i = 0; i < installedApps.length; i++) {
+      final app = installedApps[i].app;
+
+      // Buscar a última release disponível
       final result = await _codeHostingRepository
-          .getLastRelease(installedApps[i].app) //
+          .getLastRelease(app)
+          .map((updatedApp) {
+            // Para apps do Supabase, garantir que currentRelease reflita a versão instalada
+            if (app.repository.provider == GitRepositoryProvider.supabase) {
+              // Se currentRelease está vazio ou não reflete a versão instalada, corrigir
+              if (updatedApp.currentRelease.tagName.isEmpty || updatedApp.currentRelease.tagName != app.packageInfo.version) {
+                print('🔄 Supabase: Corrigindo currentRelease de "${updatedApp.currentRelease.tagName}" para "${app.packageInfo.version}"');
+                return updatedApp.copyWith(
+                  currentRelease: AppReleaseEntity(
+                    tagName: app.packageInfo.version,
+                    assets: updatedApp.lastRelease.assets,
+                  ),
+                );
+              }
+            }
+            return updatedApp;
+          })
           .flatMap(_appRepository.putApp)
           .onSuccess(installedApps[i]._updateApp);
+
       if (result.isError()) {
         return result.pure(unit);
+      }
+
+      // Log para debug
+      if (result.isSuccess()) {
+        final updatedApp = result.getOrNull()!;
+        if (updatedApp.repository.provider == GitRepositoryProvider.supabase) {
+          print('✅ Update check para ${updatedApp.appName}:');
+          print('   📦 Versão instalada (currentRelease): "${updatedApp.currentRelease.tagName}"');
+          print('   🚀 Versão disponível (lastRelease): "${updatedApp.lastRelease.tagName}"');
+          print('   📱 Versão do packageInfo: "${updatedApp.packageInfo.version}"');
+          print('   🔄 Update necessário: ${updatedApp.updateIsAvailable}');
+          print('   🔍 Releases são diferentes? ${updatedApp.lastRelease != updatedApp.currentRelease}');
+        }
       }
     }
 

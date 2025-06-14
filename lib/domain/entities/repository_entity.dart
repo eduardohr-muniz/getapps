@@ -8,7 +8,10 @@ enum GitRepositoryProvider {
   unknow(''),
 
   @JsonValue('github')
-  github('github.com');
+  github('github.com'),
+
+  @JsonValue('supabase')
+  supabase('supabase.co');
 
   final String host;
   const GitRepositoryProvider(this.host);

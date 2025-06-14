@@ -60,7 +60,71 @@ class AppEntity with _$AppEntity {
   }
 
   bool get appNotInstalled => this is NotInstalledAppEntity;
-  bool get updateIsAvailable => lastRelease != currentRelease;
+  bool get updateIsAvailable {
+    // Se for um app não instalado, nunca há update disponível
+    if (appNotInstalled) return false;
+
+    // Para apps do Supabase, fazer comparação por string PRIMEIRO
+    if (repository.provider == GitRepositoryProvider.supabase) {
+      return _hasVersionUpdate();
+    }
+
+    // Para outros apps (GitHub), verificar se os releases são diferentes
+    if (lastRelease != currentRelease) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /// Verifica se há update disponível comparando versões por string
+  bool _hasVersionUpdate() {
+    // Se não há release atual ou última release, não há update
+    if (currentRelease.tagName.isEmpty || lastRelease.tagName.isEmpty) {
+      return false;
+    }
+
+    // Se são exatamente iguais, não há update
+    if (currentRelease.tagName == lastRelease.tagName) {
+      return false;
+    }
+
+    // Comparar versões usando o mesmo algoritmo do ReleaseMapper
+    final comparison = _compareVersions(lastRelease.tagName, currentRelease.tagName);
+    return comparison > 0; // lastRelease é maior que currentRelease
+  }
+
+  /// Compara duas versões no formato "0.0.25+7" ou "0.0.25"
+  static int _compareVersions(String version1, String version2) {
+    try {
+      // Separar versão base do build number
+      final v1Parts = version1.split('+');
+      final v2Parts = version2.split('+');
+
+      final v1Base = v1Parts[0].split('.');
+      final v2Base = v2Parts[0].split('.');
+
+      // Comparar versão base (major.minor.patch)
+      for (int i = 0; i < 3; i++) {
+        final v1Num = int.tryParse(v1Base.length > i ? v1Base[i] : '0') ?? 0;
+        final v2Num = int.tryParse(v2Base.length > i ? v2Base[i] : '0') ?? 0;
+
+        if (v1Num != v2Num) {
+          return v1Num.compareTo(v2Num);
+        }
+      }
+
+      // Se versão base é igual, comparar build number
+      final v1Build = int.tryParse(v1Parts.length > 1 ? v1Parts[1] : '0') ?? 0;
+      final v2Build = int.tryParse(v2Parts.length > 1 ? v2Parts[1] : '0') ?? 0;
+
+      return v1Build.compareTo(v2Build);
+    } catch (e) {
+      // Se der erro na comparação, usar comparação lexicográfica
+      return version1.compareTo(version2);
+    }
+  }
+
   String get appName => packageInfo.name ?? repository.projectName;
 
   LoadingAppEntity toLoading([double? progress]) {

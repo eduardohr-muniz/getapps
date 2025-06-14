@@ -96,125 +96,126 @@ class _HomePageState extends State<HomePage> with HookStateMixin {
     final primary = Theme.of(context).colors.red;
 
     return Scaffold(
-        body: SafeArea(
-      child: RefreshIndicator(
-        key: _keyRefreshTop,
-        color: primary,
-        onRefresh: () {
-          return homeViewmodel.fetchAppsCommand.execute();
-        },
-        child: CustomScrollView(
-          slivers: [
-            SliverAppbarHome(
-              onChanged: homeViewmodel.searchApps,
-              onMyApp: () {},
-              onRegisterApp: () async {
-                final result = await Routefly.push(routePaths.registerApp);
-                if (result == true) {
-                  homeViewmodel.fetchAppsCommand.execute();
-                }
-              },
-              onRemoveSearch: homeViewmodel.resetSearch,
-            ),
-            SliverToBoxAdapter(
-              child: AnimatedAlign(
-                alignment: canVisibleFavoriteView ? Alignment.center : Alignment.bottomCenter,
-                curve: Curves.easeOut,
-                heightFactor: canVisibleFavoriteView ? 1 : 0,
-                duration: const Duration(milliseconds: 500),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Gap(32),
-                    const TitleSectionHome(title: 'Favoritos'),
-                    SizedBox(
-                      height: 120,
-                      width: size.width,
-                      child: ListView.builder(
-                        itemCount: favoriteApps.length,
-                        padding: const EdgeInsets.only(left: 12),
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          final appModel = favoriteApps[index];
-
-                          return SizedBox(
-                            width: 300,
-                            child: AnimatedBuilder(
-                              key: Key(appModel.app.packageInfo.id),
-                              animation: appModel,
-                              builder: (context, child) {
-                                final app = appModel.app;
-                                late Widget buttonLabel;
-
-                                if (app.appNotInstalled) {
-                                  buttonLabel = _buildButtonLabel('Instalar', UIcons.regularRounded.download);
-                                } else if (app.updateIsAvailable) {
-                                  buttonLabel = _buildButtonLabel('Atualizar', UIcons.regularRounded.refresh);
-                                } else {
-                                  buttonLabel = _buildButtonLabel('Abrir', UIcons.regularRounded.play);
-                                }
-                                return HighlightCard(
-                                  title: app.appName,
-                                  infoLabel: app.packageInfo.id,
-                                  sizeLabel: app.packageInfo.version,
-                                  imageBytes: app.packageInfo.imageBytes,
-                                  color: app.packageInfo.dominantColor ?? Colors.black,
-                                  trailing: StatusAppButton(
-                                    isLoading: appModel.isLoading,
-                                    progress: appModel.downloadPercent,
-                                    buttonLabel: buttonLabel,
-                                    onTap: () {
-                                      if (app.appNotInstalled || app.updateIsAvailable) {
-                                        _executeInstallDialog(appModel);
-                                      } else {
-                                        appModel.openApp();
-                                      }
-                                    },
-                                    onOptions: () {
-                                      _detailsModal(appModel);
-                                    },
-                                    onCancel: appModel.cancelInstallation,
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SliverGap(32),
-            const SliverToBoxAdapter(
-              child: TitleSectionHome(title: 'Meus apps'),
-            ),
-            SliverToBoxAdapter(
-              child: AnimatedAppsList(
-                models: appModels,
-                installApp: _executeInstallDialog,
-                openApp: (appModel) {
-                  appModel.openApp();
+      body: SafeArea(
+        child: RefreshIndicator(
+          key: _keyRefreshTop,
+          color: primary,
+          onRefresh: () {
+            return homeViewmodel.fetchAppsCommand.execute();
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverAppbarHome(
+                onChanged: homeViewmodel.searchApps,
+                onMyApp: () {},
+                onRegisterApp: () async {
+                  final result = await Routefly.push(routePaths.registerApp);
+                  if (result == true) {
+                    homeViewmodel.fetchAppsCommand.execute();
+                  }
                 },
+                onRemoveSearch: homeViewmodel.resetSearch,
               ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: 32.0.paddingTop + 24.0.paddingBottom,
-                child: Center(
-                  child: VersionWidget(
-                    version: homeViewmodel.appVersion,
+              SliverToBoxAdapter(
+                child: AnimatedAlign(
+                  alignment: canVisibleFavoriteView ? Alignment.center : Alignment.bottomCenter,
+                  curve: Curves.easeOut,
+                  heightFactor: canVisibleFavoriteView ? 1 : 0,
+                  duration: const Duration(milliseconds: 500),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Gap(32),
+                      const TitleSectionHome(title: 'Favoritos'),
+                      SizedBox(
+                        height: 120,
+                        width: size.width,
+                        child: ListView.builder(
+                          itemCount: favoriteApps.length,
+                          padding: const EdgeInsets.only(left: 12),
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            final appModel = favoriteApps[index];
+
+                            return SizedBox(
+                              width: 300,
+                              child: AnimatedBuilder(
+                                key: Key(appModel.app.packageInfo.id),
+                                animation: appModel,
+                                builder: (context, child) {
+                                  final app = appModel.app;
+                                  late Widget buttonLabel;
+
+                                  if (app.appNotInstalled) {
+                                    buttonLabel = _buildButtonLabel('Instalar', UIcons.regularRounded.download);
+                                  } else if (app.updateIsAvailable) {
+                                    buttonLabel = _buildButtonLabel('Atualizar', UIcons.regularRounded.refresh);
+                                  } else {
+                                    buttonLabel = _buildButtonLabel('Abrir', UIcons.regularRounded.play);
+                                  }
+                                  return HighlightCard(
+                                    title: app.appName,
+                                    infoLabel: app.packageInfo.id,
+                                    sizeLabel: app.packageInfo.version,
+                                    imageBytes: app.packageInfo.imageBytes,
+                                    color: app.packageInfo.dominantColor ?? Colors.black,
+                                    trailing: StatusAppButton(
+                                      isLoading: appModel.isLoading,
+                                      progress: appModel.downloadPercent,
+                                      buttonLabel: buttonLabel,
+                                      onTap: () {
+                                        if (app.appNotInstalled || app.updateIsAvailable) {
+                                          _executeInstallDialog(appModel);
+                                        } else {
+                                          appModel.openApp();
+                                        }
+                                      },
+                                      onOptions: () {
+                                        _detailsModal(appModel);
+                                      },
+                                      onCancel: appModel.cancelInstallation,
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            )
-          ],
+              const SliverGap(32),
+              const SliverToBoxAdapter(
+                child: TitleSectionHome(title: 'Meus apps'),
+              ),
+              SliverToBoxAdapter(
+                child: AnimatedAppsList(
+                  models: appModels,
+                  installApp: _executeInstallDialog,
+                  openApp: (appModel) {
+                    appModel.openApp();
+                  },
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: 32.0.paddingTop + 24.0.paddingBottom,
+                  child: Center(
+                    child: VersionWidget(
+                      version: homeViewmodel.appVersion,
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }
 

@@ -8,8 +8,14 @@ import 'utils/transitions/transitions.dart';
 
 part 'main.g.dart';
 
-void main() {
+void main() async {
+  // Garantir que o Flutter está inicializado
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Configurar injeção de dependência
   setupInjection();
+
+  // Executar o app
   runApp(const AppWidget());
 }
 

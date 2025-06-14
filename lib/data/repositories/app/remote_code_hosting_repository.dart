@@ -29,11 +29,15 @@ class RemoteCodeHostingRepository implements CodeHostingRepository {
   @override
   AsyncResult<AppEntity> getLastRelease(AppEntity app) async {
     final url = _getUrlApiByProvide(app.repository);
+    final headers = _getHeadersByProvider(app.repository.provider);
 
-    return _clientHttp.get(url, headers: {
-      'Accept': 'application/vnd.github.v3+json',
-      'Authorization': 'token $githubToken',
-    }).flatMap((response) {
+    return _clientHttp.get(url, headers: headers).flatMap((response) {
+      // Para Supabase, response.data já é uma lista
+      if (app.repository.provider == GitRepositoryProvider.supabase) {
+        return ReleaseMapper.toAppFromSupabaseList(app, response.data as List<dynamic>);
+      }
+
+      // Para GitHub, é um Map
       final data = response.data as Map<String, dynamic>;
       return ReleaseMapper.toApp(app, data);
     });
@@ -43,8 +47,28 @@ class RemoteCodeHostingRepository implements CodeHostingRepository {
     switch (repository.provider) {
       case GitRepositoryProvider.github:
         return 'https://api.github.com/repos/${repository.organizationName}/${repository.projectName}/releases/latest';
+      case GitRepositoryProvider.supabase:
+        return '$supabaseUrl/versions?select=*&platform=eq.android&order=created_at.desc,version.desc';
       default:
         throw UnimplementedError();
+    }
+  }
+
+  Map<String, String> _getHeadersByProvider(GitRepositoryProvider provider) {
+    switch (provider) {
+      case GitRepositoryProvider.github:
+        return {
+          'Accept': 'application/vnd.github.v3+json',
+          'Authorization': 'token $githubToken',
+        };
+      case GitRepositoryProvider.supabase:
+        return {
+          'apikey': supabaseApiKey,
+          'Authorization': 'Bearer $supabaseAuthToken',
+          'Content-Type': 'application/json',
+        };
+      default:
+        return {};
     }
   }
 
@@ -52,6 +76,8 @@ class RemoteCodeHostingRepository implements CodeHostingRepository {
     switch (repository.provider) {
       case GitRepositoryProvider.github:
         return 'https://github.com/${repository.organizationName}/${repository.projectName}';
+      case GitRepositoryProvider.supabase:
+        return 'https://supabase.com'; // ou outra URL relevante
       default:
         throw UnimplementedError();
     }

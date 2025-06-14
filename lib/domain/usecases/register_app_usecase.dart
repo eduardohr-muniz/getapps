@@ -12,6 +12,11 @@ class RegisterAppUsecase {
   final CodeHostingRepository _codeHostingRepository;
 
   AsyncResult<AppEntity> call(String repositoryUrl) async {
+    // Se for URL especial do Supabase
+    if (repositoryUrl.toLowerCase() == 'supabase' || repositoryUrl.toLowerCase() == 'external' || repositoryUrl.contains('supabase.co')) {
+      return _registerSupabaseApp();
+    }
+
     final uri = Uri.tryParse(repositoryUrl);
     if (uri == null) {
       return InvalidRepositoryUrlException().toFailure();
@@ -27,6 +32,20 @@ class RegisterAppUsecase {
       provider: provider,
       organizationName: uri.pathSegments[0],
       projectName: uri.pathSegments[1],
+    );
+
+    final app = AppEntity.notInstalledApp(appRepository);
+
+    return _codeHostingRepository
+        .getLastRelease(app) //
+        .flatMap(_appRepository.putApp);
+  }
+
+  AsyncResult<AppEntity> _registerSupabaseApp() async {
+    const appRepository = RepositoryEntity(
+      provider: GitRepositoryProvider.supabase,
+      organizationName: 'PaipFood',
+      projectName: 'Gestor',
     );
 
     final app = AppEntity.notInstalledApp(appRepository);

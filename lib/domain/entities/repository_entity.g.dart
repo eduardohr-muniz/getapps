@@ -25,4 +25,5 @@ Map<String, dynamic> _$$RepositoryEntityImplToJson(
 const _$GitRepositoryProviderEnumMap = {
   GitRepositoryProvider.unknow: 'unknow',
   GitRepositoryProvider.github: 'github',
+  GitRepositoryProvider.supabase: 'supabase',
 };

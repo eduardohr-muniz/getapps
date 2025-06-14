@@ -93,11 +93,16 @@ class AndroidPackagePlugin: FlutterPlugin, ActivityAware, MethodCallHandler{
       val appIconBitmap  = packageManager.getApplicationIcon(packageId).toBitmap()
       val appIconBytes = appIconBitmap.toByteArray()
       val appVersion = packageInfo.versionName
+      val appVersionCode = packageInfo.versionCode
+      
+      Log.d("AndroidPackage", "getAppInfo - versionName: $appVersion, versionCode: $appVersionCode")
+      
       mapOf(
         "name" to appName,
         "packageId" to packageId,
         "icon" to appIconBytes,
-        "version" to appVersion
+        "version" to appVersion,
+        "versionCode" to appVersionCode
       )
     } catch (e: PackageManager.NameNotFoundException) {
       return null;
@@ -115,12 +120,16 @@ class AndroidPackagePlugin: FlutterPlugin, ActivityAware, MethodCallHandler{
         val appName = packageManager.getApplicationLabel(it).toString()
         val appIcon = packageManager.getApplicationIcon(it).toBitmap().toByteArray()
         val appVersion = packageInfo.versionName
+        val appVersionCode = packageInfo.versionCode
+        
+        Log.d("AndroidPackage", "getAPKInfo - versionName: $appVersion, versionCode: $appVersionCode")
 
         mapOf(
           "name" to appName,
           "packageId" to packageInfo.packageName,
           "icon" to appIcon,
-          "version" to appVersion
+          "version" to appVersion,
+          "versionCode" to appVersionCode
         )
       } ?: emptyMap()
     } catch (e: Exception) {

@@ -14,6 +14,16 @@
             ]
         },
         {
+            "name": "getapps release",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--release",
+                "--dart-define-from-file",
+                ".env"
+            ]
+        },
+        {
             "name": "example plugin",
             "cwd": "plugins/android_package/example",
             "request": "launch",

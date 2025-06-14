@@ -4,6 +4,8 @@ import 'package:android_package/android_package.dart';
 import 'package:getapps/data/exceptions/exceptions.dart';
 import 'package:getapps/data/services/local_storage.dart';
 import 'package:getapps/domain/entities/app_entity.dart';
+import 'package:getapps/domain/entities/app_release_entity.dart';
+import 'package:getapps/domain/entities/repository_entity.dart';
 import 'package:getapps/domain/repositories/app_repository.dart';
 import 'package:result_dart/result_dart.dart';
 
@@ -26,9 +28,19 @@ class AndroidAppRepository implements AppRepository {
       return Failure(AndroidPluginException('Package not found: ${app.packageInfo.id}'));
     }
 
+    // Para apps do Supabase, tentar construir versão completa
+    String finalVersion = package.version;
+    if (app.repository.provider == GitRepositoryProvider.supabase) {
+      finalVersion = _buildFullVersion(package.version, package.versionCode, app.lastRelease.tagName);
+      // Reduzir logs repetitivos - só loggar se a versão mudou
+      if (finalVersion != app.packageInfo.version) {
+        print('🔍 addInfo: Versão atualizada para ${app.appName}: "$finalVersion"');
+      }
+    }
+
     final newApp = app.copyWith.packageInfo(
       name: package.name,
-      version: package.version,
+      version: finalVersion,
       imageBytes: package.icon,
     );
 
@@ -71,20 +83,75 @@ class AndroidAppRepository implements AppRepository {
       return Failure(AndroidPluginException('Failed to get package info: ${app.repository.projectName}'));
     }
 
+    AppReleaseEntity currentRelease;
+    String finalVersionForPackage = packageInfo.version; // Versão para o packageInfo
+
+    if (app.repository.provider == GitRepositoryProvider.supabase) {
+      final fullVersion = _buildFullVersion(packageInfo.version, packageInfo.versionCode, app.lastRelease.tagName);
+      finalVersionForPackage = fullVersion; // Usar a versão completa também no packageInfo
+
+      currentRelease = AppReleaseEntity(
+        tagName: fullVersion,
+        assets: app.lastRelease.assets,
+      );
+      print('📱 Supabase: currentRelease definido como v$fullVersion');
+      print('🔍 DEBUG: versionName do APK: "${packageInfo.version}"');
+      print('🔍 DEBUG: versionCode do APK: ${packageInfo.versionCode}');
+      print('🔍 DEBUG: Versão do lastRelease: "${app.lastRelease.tagName}"');
+      print('🔍 DEBUG: Versão final construída: "$fullVersion"');
+      print('🔍 DEBUG: São iguais? ${fullVersion == app.lastRelease.tagName}');
+    } else {
+      currentRelease = app.lastRelease;
+    }
+
     final newApp = app
         .copyWith(
-          currentRelease: app.lastRelease,
+          currentRelease: currentRelease,
         )
         .copyWith
         .packageInfo(
           id: packageInfo.packageId,
           name: packageInfo.name,
-          version: packageInfo.version,
+          version: finalVersionForPackage, // Usar a versão completa aqui também
           imageBytes: packageInfo.icon,
         )
         .toInstalled();
 
     return Success(newApp);
+  }
+
+  /// Tenta construir a versão completa no formato esperado pelo Supabase
+  String _buildFullVersion(String versionName, int versionCode, String expectedVersion) {
+    // Se o versionName já contém o build number (+), usar como está
+    if (versionName.contains('+')) {
+      return versionName;
+    }
+
+    // Para apps do Supabase, sempre tentar construir a versão completa usando versionCode
+    // Se a versão esperada contém build number, usar ela diretamente se a base for igual
+    if (expectedVersion.contains('+')) {
+      final expectedParts = expectedVersion.split('+');
+      if (expectedParts.length == 2) {
+        final expectedVersionName = expectedParts[0];
+        final expectedVersionCode = expectedParts[1];
+
+        // Se o versionName corresponde à parte base e o versionCode também corresponde
+        if (versionName == expectedVersionName && versionCode.toString() == expectedVersionCode) {
+          print('🔧 Construindo versão completa: $versionName+$versionCode');
+          return expectedVersion;
+        }
+      }
+    }
+
+    // Se não há versão esperada com build number, construir usando versionCode se for > 0
+    if (versionCode > 1) {
+      final fullVersion = '$versionName+$versionCode';
+      print('🔧 Construindo versão completa a partir do versionCode: $fullVersion');
+      return fullVersion;
+    }
+
+    // Fallback: usar apenas o versionName
+    return versionName;
   }
 
   @override
